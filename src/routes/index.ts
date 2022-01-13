@@ -2,11 +2,12 @@
 import { Router } from "express";
 import { getAllAduans } from "./Aduans";
 import { getAllRoles } from "./Roles";
-import { getAllUsers, addOneUser, updateOneUser, deleteOneUser } from "./Users";
+import { getUserPelapor, addOneUser, updateOneUser, deleteOneUser, getUserLembaga } from "./Users";
 
 // User-route
 const userRouter = Router();
-userRouter.get("/all", getAllUsers);
+userRouter.get("/pelapor", getUserPelapor);
+userRouter.get("/lembaga", getUserLembaga);
 userRouter.post("/add", addOneUser);
 userRouter.put("/update", updateOneUser);
 userRouter.delete("/delete/:id", deleteOneUser);

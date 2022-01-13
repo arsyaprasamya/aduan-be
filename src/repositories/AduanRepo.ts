@@ -30,17 +30,14 @@ export const getAllAduans: (
             perPage, // total row
             (page - 1) * perPage, // mulainya
           ],
-          (result: any) => {
-            // kalo berhasil
-            resolve(result.rows);
-          },
-          (reason: any) => {
-            // kalau gagal
-            reject(reason);
-          }
-        );
-      }
-    );
+        )
+          .then((result: any) => {
+            resolve(result.rows)
+          })
+          .catch((reason: any) => {
+            reject(reason)
+          })
+      })
 
 const getCountAduans: () => Promise<any> = async () => new Promise((
   resolve: (value: any) => void,
@@ -52,14 +49,13 @@ const getCountAduans: () => Promise<any> = async () => new Promise((
       SELECT COUNT(*) 
       FROM "aduan"
     `,
-    [],
-    (result: any) => {
-      resolve(parseInt(result.rows[0].count as string))
-    },
-    (reason: any) => {
-      reject(reason)
-    }
   )
+    .then((result: any) => {
+      resolve(result.rows[0].count)
+    })
+    .catch((reason: any) => {
+      reject(reason)
+    })
 })
 
 export default {

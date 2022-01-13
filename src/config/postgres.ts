@@ -1,3 +1,4 @@
+import { resolve } from "path/posix";
 import { Pool, PoolConfig } from "pg";
 type CallbackReturnType = (a: any) => void;
 
@@ -21,39 +22,38 @@ class Postgres {
 
   public query = (
     sql: string,
-    values: any[],
-    whendone: CallbackReturnType | null = null,
-    whenfailed: CallbackReturnType | null = null
-  ) => {
-    if (this.pool != null) {
-      this.pool.connect((err, client, release) => {
-        if (err) {
-          if (whenfailed != null) whenfailed(err);
-          else {
-            return console.error("Error acquiring client", err.stack);
-          }
-        }
-        client.query(sql, values, (err, result) => {
-          release();
+    values: any[] = [],
+  ) =>
+    new Promise((
+      resolve: (value: unknown) => void,
+      reject: (reason?: any) => void,
+    ) => {
+      if (this.pool != null) {
+        this.pool.connect((err, client, release) => {
           if (err) {
-            if (whenfailed != null) {
-              whenfailed(err);
-            } else {
-              return console.error("Error executing query", err.stack);
-            }
+            // Jika connection failed
+            reject(err)
           }
-
-          // kalo berhasil
-          if (whendone != null) {
-            whendone(result);
-          }
-        });
-      });
-    } else {
-      if (whenfailed != null) whenfailed("pool has not been set");
-      else console.error("pool has not been set");
-    }
-  };
+          client
+            .query(sql, values)
+            .then((result) => {
+              // Jika berhasil
+              resolve(result)
+            })
+            .catch((err) => {
+              // Kalau error saat query
+              reject(err)
+            })
+            .finally(() => {
+              // supaya gak kepenuhan, client harus di releasae
+              release()
+            })
+        })
+      } else {
+        // Kalau pool tidak berhasil ke create
+        reject("Pool has not been set")
+      }
+    })
 }
 
 export default Postgres;

@@ -25,24 +25,26 @@ export const getAllAduans: (req: Request, res: Response) => any = (
         })
 
       // return result with paginated count
-      return res.status(OK).json({
-        message: "Success",
-        data: {
-          total: 0,
-          per_page: perPage,
-          current_page: page,
-          from: (page - 1) * perPage + 1,
-          to: (page - 1) * perPage + result.length,
-          aduan: result,
-        },
-      });
+      return res
+        .status(OK).json({
+          message: "Success",
+          data: {
+            total: countRow,
+            per_page: perPage,
+            current_page: page,
+            from: (page - 1) * perPage + 1,
+            to: (page - 1) * perPage + result.length,
+            aduan: result,
+          },
+        });
     })
     .catch((reason: any) => {
-      return res.status(INTERNAL_SERVER_ERROR).json({
-        message: "Server Error",
-        data: {
-          reason,
-        },
-      });
+      return res
+        .status(INTERNAL_SERVER_ERROR).json({
+          message: "Server Error",
+          data: {
+            reason,
+          },
+        });
     });
 };
