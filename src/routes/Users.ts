@@ -32,17 +32,22 @@ function getUserByRoleId(req: Request, res: Response, roleId: number[]) {
   const perPage: number = req.query.per_page ? parseInt(req.query.per_page as string) : 10;
   const page: number = req.query.page ? parseInt(req.query.page as string) : 1;
 
+  const orderBy: string = req.query.order_by ? req.query.order_by as string : 'id';
+  const order: string = req.query.order ? req.query.order as string : 'asc';
+
   UserRepo
     .getAllUsers(
       roleId,
       keyword,
       page,
-      perPage
+      perPage,
+      orderBy,
+      order
     )
     .then(async (result: any) => {
       let countRow = 0
       await UserRepo
-        .getCountUsers([2])
+        .getCountUsers(roleId)
         .then((result: number) => {
           countRow = result
         })

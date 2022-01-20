@@ -4,13 +4,17 @@ const getAllUsers: (
   roleId: number[],
   keyword: string,
   page: number,
-  perPage: number
+  perPage: number,
+  orderBy: string,
+  order: string
 ) =>
   Promise<any> = (
     roleId: number[],
     keyword: string,
     page: number,
-    perPage: number
+    perPage: number,
+    orderBy: string,
+    order: string
   ) =>
     new Promise((
       resolve: (value: any) => void,
@@ -21,14 +25,19 @@ const getAllUsers: (
       postgres
         .query(
           `
-                SELECT *
+                SELECT "user".*, "lembaga".nama_lembaga as lembaga, "role".nama_role as role
                 FROM "user"
-                WHERE email LIKE $2
-                  AND role_id IN ($1)
+                  LEFT JOIN "lembaga" ON "user".lembaga_id = "lembaga".id
+                  LEFT JOIN "role" ON "role".id = "user".role_id
+                WHERE email LIKE $1
+                  AND role_id IN (${roleId.join(',')})
+                  ORDER BY ${orderBy} ${order}
+                  LIMIT $2 OFFSET $3
                 `,
           [
-            roleId.join(','),
-            `%${keyword}%`
+            `%${keyword}%`,
+            perPage, // total row
+            (page - 1) * perPage, // mulainya
           ]
         )
         .then((result: any) => {
@@ -57,11 +66,9 @@ const getCountUsers: (
           `
           SELECT COUNT(*)
           FROM "user"
-          WHERE role_id IN ($1)
+          WHERE role_id IN (${roleId.join(',')})
         `,
-          [
-            roleId.join(',')
-          ]
+          []
         )
         .then((result: any) => {
           resolve(result.rows[0].count)
